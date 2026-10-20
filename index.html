@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="NexaTech — periféricos tecnológicos para o seu setup.">
+  <title>NexaTech | Periféricos tecnológicos</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="announcement">Frete grátis acima de R$ 199 <span>•</span> 10x sem juros</div>
+  <header class="site-header">
+    <div class="header-inner">
+      <button class="icon-button menu-button" id="menuButton" aria-label="Abrir menu">☰</button>
+      <a class="logo" href="#top" aria-label="NexaTech início"><b>N</b>nexa<strong>tech</strong></a>
+      <nav id="mainNav"><a href="#produtos">Produtos</a><a href="#categorias">Categorias</a><a href="#ofertas">Ofertas</a></nav>
+      <label class="search"><span>⌕</span><input id="searchInput" type="search" placeholder="Buscar no catálogo" aria-label="Buscar produtos"></label>
+      <button class="cart-button" id="cartButton" aria-label="Adicionar ao carrinho">Sacola <i id="cartCount">0</i></button>
+    </div>
+    <label class="mobile-search search"><span>⌕</span><input id="mobileSearchInput" type="search" placeholder="Buscar produtos" aria-label="Buscar produtos"></label>
+  </header>
+
+  <main id="top">
+    <section class="hero container">
+      <div class="hero-copy"><p class="eyebrow">✦ Upgrade seu setup</p><h1>Tecnologia<br><em>no seu ritmo.</em></h1><p class="hero-text">Peças inteligentes para trabalhar, jogar e criar sem abrir mão do seu estilo.</p><a class="primary-button" href="#produtos">Comprar agora <span>↗</span></a></div>
+      <div class="hero-image"><img src="hero-gadgets.png" alt="Periféricos tecnológicos em destaque"><div class="collection-card"><small>COLEÇÃO DA SEMANA</small><b>Tudo para o seu próximo upgrade.</b></div><strong class="number">N° 01 / 04</strong></div>
+    </section>
+
+    <section class="container categories" id="categorias"><div id="categoryList"></div></section>
+    <section class="products container" id="produtos"><div class="section-heading"><div><p class="eyebrow green">CURADORIA NEXATECH</p><h2>Escolhas que fazem diferença.</h2></div><span id="productTotal"></span></div><div class="product-grid" id="productGrid"></div></section>
+    <section class="offer container" id="ofertas"><div><p class="eyebrow">OFERTA DE ESTREIA</p><h2>Seu setup merece<br>um upgrade.</h2></div><p>Use o cupom <b>NEXA10</b> e ganhe 10% na primeira compra.</p></section>
+  </main>
+  <footer><b>nexa<strong>tech</strong></b><span>Periféricos para todos os seus momentos.</span><span>© 2026 NexaTech</span></footer>
+  <script src="script.js"></script>
+</body>
+</html>
