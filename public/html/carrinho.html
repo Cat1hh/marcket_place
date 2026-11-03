@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NexaTech — sua sacola de produtos tecnológicos.">
+    <title>NexaTech | Minha sacola</title>
+    <link rel="stylesheet" href="../css/carrinho.css">
+</head>
+
+<body>
+
+<div class="announcement">Frete grátis acima de R$ 199 <span>•</span> 10x sem juros</div>
+<header class="site-header">
+    <div class="header-inner">
+        <a class="logo" href="index.html" aria-label="NexaTech início"><b>N</b>nexa<strong>tech</strong></a>
+        <nav><a href="index.html#produtos">Produtos</a><a href="index.html#categorias">Categorias</a><a href="index.html#ofertas">Ofertas</a></nav>
+        <a class="cart-button active" href="carrinho.html" aria-label="Abrir carrinho">Sacola</a>
+    </div>
+</header>
+
+<main class="cart-page container">
+    <div class="page-heading">
+        <p class="eyebrow">SUA SELEÇÃO</p>
+        <h1>Minha sacola.</h1>
+        <a class="back-link" href="index.html#produtos">← Continuar comprando</a>
+    </div>
+
+    <div class="cart-layout">
+        <section class="produtos">
+            <div class="section-title"><h2>Seus produtos</h2><span id="itemCount"></span></div>
+            <div id="cartItems"></div>
+        </section>
+
+        <section class="resumo">
+            <p class="eyebrow green">RESUMO DO PEDIDO</p>
+            <h2>Quase lá.</h2>
+
+            <div class="summary-line"><span>Subtotal</span><b id="subtotal">R$ 0,00</b></div>
+            <div class="summary-line"><span>Frete</span><b id="shipping">R$ 0,00</b></div>
+
+            <div class="total-line"><span>Total</span><strong id="total">R$ 0,00</strong></div>
+
+            <h2 class="delivery-title">Dados de entrega</h2>
+
+            <input type="text" placeholder="Nome completo">
+            <input type="text" placeholder="Endereço">
+            <input type="text" placeholder="CEP">
+
+            <button id="checkoutButton">Finalizar compra <span>↗</span></button>
+        </section>
+    </div>
+
+</main>
+
+<footer><b>nexa<strong>tech</strong></b><span>Periféricos para todos os seus momentos.</span><a href="admin.html">Área do administrador</a><span>© 2026 NexaTech</span></footer>
+
+    <script src="../js/carrinho.js"></script>
+</body>
+</html>

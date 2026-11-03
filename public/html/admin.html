@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Painel administrativo NexaTech.">
+  <title>NexaTech | Administrador</title>
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="../css/admin-detail.css">
+</head>
+<body>
+  <div class="announcement">PAINEL INTERNO <span>•</span> NEXATECH ADMIN</div>
+  <div class="admin-shell">
+    <aside class="sidebar">
+      <a class="logo" href="index.html" aria-label="Voltar para a loja"><b>N</b>nexa<strong>tech</strong></a>
+      <div class="admin-profile"><span class="avatar">AD</span><div><b>Administrador</b><small>Controle da loja</small></div></div>
+      <nav class="admin-nav" aria-label="Navegação administrativa">
+        <button class="nav-item active" data-section="overview">Visão geral <span>⌂</span></button>
+        <button class="nav-item" data-section="products">Produtos <span>▦</span></button>
+        <button class="nav-item" data-section="product-detail">Consultar produto <span>⌕</span></button>
+        <button class="nav-item" data-section="orders">Pedidos <span>◷</span></button>
+        <button class="nav-item" data-section="customers">Clientes <span>◉</span></button>
+      </nav>
+      <a class="back-store" href="index.html">← Voltar para a loja</a>
+    </aside>
+
+    <main class="admin-main">
+      <header class="topbar"><div><p class="eyebrow">CENTRAL DE OPERAÇÕES</p><h1 id="pageTitle">Visão geral</h1></div><div class="topbar-actions"><span class="date-label">03 NOV 2026</span><a class="store-link" href="index.html">Ver loja ↗</a></div></header>
+
+      <section class="admin-section active" id="overview">
+        <div class="welcome"><div><p class="eyebrow green">BOM TRABALHO, ADMINISTRADOR</p><h2>A loja em movimento.</h2><p>Acompanhe os principais números e acesse rapidamente cada gerenciador.</p></div><span class="welcome-mark">N° 01</span></div>
+        <div class="metric-grid"><article class="metric-card"><span>Produtos ativos</span><strong id="metricProducts">0</strong><small>no catálogo</small></article><article class="metric-card"><span>Pedidos hoje</span><strong id="metricOrders">0</strong><small>aguardando atenção</small></article><article class="metric-card"><span>Clientes</span><strong id="metricCustomers">0</strong><small>base cadastrada</small></article><article class="metric-card highlight"><span>Vendas no mês</span><strong id="metricSales">R$ 0,00</strong><small>valor processado</small></article></div>
+        <div class="quick-grid"><button class="quick-card" data-go="products"><span>▦</span><b>Gerenciador de produtos</b><small>Cadastrar, editar e excluir itens</small><strong>↗</strong></button><button class="quick-card" data-go="orders"><span>◷</span><b>Gerenciador de pedidos</b><small>Visualizar e atualizar status</small><strong>↗</strong></button><button class="quick-card" data-go="customers"><span>◉</span><b>Gerenciador de clientes</b><small>Visualizar e gerenciar clientes</small><strong>↗</strong></button></div>
+      </section>
+
+      <section class="admin-section" id="products"><div class="section-toolbar"><div><p class="eyebrow green">CATÁLOGO</p><h2>Gerenciador de produtos</h2></div><button class="primary-action" id="newProductButton">+ Novo produto</button></div><div class="table-tools"><input id="productSearch" type="search" placeholder="Buscar produto..."><select id="productCategory"><option value="Todos">Todas as categorias</option><option>Teclados</option><option>Mouses</option><option>Áudio</option><option>Monitores</option><option>Acessórios</option></select></div><div class="table-wrap"><table><thead><tr><th>ID</th><th>Produto</th><th>Categoria</th><th>Preço</th><th>Status</th><th>Ações</th></tr></thead><tbody id="productsTable"></tbody></table></div></section>
+
+      <section class="admin-section" id="product-detail"><div class="section-toolbar"><div><p class="eyebrow green">CONSULTA DE ESTOQUE</p><h2>Consultar produto</h2></div></div><div class="product-lookup"><label for="productIdSearch">ID do produto cadastrado</label><div class="lookup-row"><input id="productIdSearch" list="productIds" placeholder="Ex.: p1" autocomplete="off"><datalist id="productIds"></datalist><button class="primary-action" id="lookupProductButton">Consultar produto</button></div><small>Troque o ID para atualizar automaticamente o produto exibido.</small></div><article class="product-detail-card" id="productDetailCard" aria-live="polite"><div class="detail-empty"><span>⌕</span><h3>Selecione um produto</h3><p>Informe um ID acima para consultar imagem, estoque, local de venda e categoria.</p></div></article></section>
+
+      <section class="admin-section" id="orders"><div class="section-toolbar"><div><p class="eyebrow green">OPERAÇÃO</p><h2>Gerenciador de pedidos</h2></div><select id="orderFilter"><option value="Todos">Todos os status</option><option value="Recebido">Recebido</option><option value="Em separação">Em separação</option><option value="Enviado">Enviado</option><option value="Entregue">Entregue</option></select></div><div class="table-wrap"><table><thead><tr><th>Pedido</th><th>Cliente</th><th>Data</th><th>Valor</th><th>Status</th></tr></thead><tbody id="ordersTable"></tbody></table></div></section>
+
+      <section class="admin-section" id="customers"><div class="section-toolbar"><div><p class="eyebrow green">RELACIONAMENTO</p><h2>Gerenciador de clientes</h2></div><input class="toolbar-search" id="customerSearch" type="search" placeholder="Buscar cliente..."></div><div class="table-wrap"><table><thead><tr><th>Cliente</th><th>E-mail</th><th>Pedidos</th><th>Total gasto</th><th>Status</th></tr></thead><tbody id="customersTable"></tbody></table></div></section>
+    </main>
+  </div>
+
+  <dialog id="productDialog"><form method="dialog" id="productForm"><div class="dialog-header"><div><p class="eyebrow green">CATÁLOGO</p><h2 id="dialogTitle">Novo produto</h2></div><button class="close-button" value="cancel" aria-label="Fechar">×</button></div><input type="hidden" id="productId"><label>Nome do produto<input id="productName" required></label><label>Imagem do produto (URL)<input id="productImage" type="url" placeholder="https://..." ></label><div class="form-row"><label>Categoria<select id="productCategoryForm"><option>Teclados</option><option>Mouses</option><option>Áudio</option><option>Monitores</option><option>Acessórios</option></select></label><label>Preço<input id="productPrice" placeholder="R$ 0,00" required></label></div><div class="form-row"><label>Estoque<input id="productStock" type="number" min="0" value="10" required></label><label>Status<select id="productStatus"><option>Ativo</option><option>Rascunho</option></select></label></div><button class="primary-action" value="default">Salvar produto</button></form></dialog>
+  <script src="../js/admin.js"></script>
+</body>
+</html>
