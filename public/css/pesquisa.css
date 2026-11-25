@@ -1,0 +1,259 @@
+.search-page {
+  padding: 46px 24px 64px;
+}
+
+.search-page .section-heading {
+  margin-bottom: 32px;
+}
+
+.search-page h1 {
+  margin: 8px 0 0;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(2.2rem, 4.5vw, 3.4rem);
+  line-height: 0.95;
+  letter-spacing: -0.07em;
+}
+
+.search-layout {
+  display: grid;
+  grid-template-columns: 270px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+/* Painel lateral de filtros */
+.filters-card {
+  padding: 26px;
+  border-radius: 24px;
+  background: #fff;
+  border: 1px solid var(--line);
+}
+
+.filter-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.filter-heading h3 {
+  margin: 0;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px;
+  letter-spacing: -0.04em;
+}
+
+.clear-button {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.clear-button:hover {
+  color: var(--dark);
+}
+
+.filter-group {
+  margin-bottom: 22px;
+}
+
+.filter-group h4 {
+  margin: 0 0 12px;
+  color: #89918a;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.filter-options label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--dark);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.filter-options input[type="checkbox"] {
+  accent-color: var(--dark);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+.price-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.price-inputs input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--dark);
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.price-inputs input:focus {
+  border-color: var(--dark);
+}
+
+.apply-filters-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 6px;
+  border: 0;
+  cursor: pointer;
+}
+
+/* Toolbar e grade de resultados */
+.results-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  margin-bottom: 26px;
+  border-bottom: 1px solid var(--line);
+}
+
+.results-toolbar span {
+  color: #89918a;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.results-toolbar select {
+  padding: 10px 16px;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--dark);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+}
+
+/* 3 colunas ao lado da sidebar para manter a proporção dos cards */
+.results-area .product-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* Estado vazio */
+.empty-state {
+  padding: 56px 24px;
+  border-radius: 24px;
+  border: 1px dashed #aeb6ae;
+  background: #fff;
+  text-align: center;
+}
+
+.empty-state h3 {
+  margin: 0 0 8px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px;
+  letter-spacing: -0.05em;
+}
+
+.empty-state p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* Paginação no padrão .category */
+.pagination {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 38px;
+}
+
+.pagination button {
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  background: #fff;
+  color: #778078;
+  padding: 9px 15px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pagination button.active,
+.pagination button:hover {
+  border-color: var(--green);
+  background: var(--green);
+  color: var(--dark);
+}
+
+/* Toast no estilo do .number / .hero-copy */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 20;
+  padding: 12px 18px;
+  border-radius: 99px;
+  background: var(--dark);
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition: 0.25s;
+}
+
+#toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 960px) {
+  .search-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .results-area .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 460px) {
+  .search-page {
+    padding-top: 28px;
+  }
+
+  .results-area .product-grid {
+    gap: 18px;
+  }
+}
