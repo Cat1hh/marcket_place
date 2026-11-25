@@ -297,6 +297,7 @@ try {
             }
 
             $pdo->commit();
+            $_SESSION['ultimo_pedido_id'] = $pedidoId;
 
             http_response_code(201);
             echo json_encode([

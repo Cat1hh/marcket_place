@@ -325,11 +325,7 @@
         }
 
         renderCart();
-        alert(`Pedido ${result.codigo} confirmado! Total: ${money(result.total)}`);
-
-        if (window.NEXATECH_USER?.role === 'cliente') {
-          window.location.href = 'cliente.php';
-        }
+        window.location.href = `compra-finalizada.php?id=${encodeURIComponent(result.id)}`;
       } catch (error) {
         alert('Erro de conexão ao enviar o pedido.');
       } finally {
