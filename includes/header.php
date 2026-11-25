@@ -17,6 +17,9 @@ $usuarioHeader = usuarioLogado();
   <title><?= htmlspecialchars($tituloPagina, ENT_QUOTES, 'UTF-8') ?></title>
   <link rel="stylesheet" href="../css/styles.css">
   <link rel="stylesheet" href="../css/interactions.css">
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/interactions.css">
+
   <?php foreach ((array) ($cssExtras ?? []) as $css): ?>
     <link rel="stylesheet" href="../css/<?= htmlspecialchars($css, ENT_QUOTES, 'UTF-8') ?>">
   <?php endforeach; ?>

@@ -167,7 +167,7 @@ try {
                 $prodId = isset($item['id']) ? (int) $item['id'] : 0;
 
                 if ($prodId > 0) {
-                    $stmtProd = $pdo->prepare('SELECT id, preco, estoque FROM produtos WHERE id = :id FOR UPDATE');
+                    $stmtProd = $pdo->prepare('SELECT id, nome, preco, estoque FROM produtos WHERE id = :id FOR UPDATE');
                     $stmtProd->execute([':id' => $prodId]);
                     $prodDb = $stmtProd->fetch();
 
@@ -188,9 +188,10 @@ try {
                     $precoUnit = (float) $prodDb['preco'];
                     $subtotal += $precoUnit * $qtd;
                     $itensValidados[] = [
-                        'produto_id' => $prodId,
-                        'quantidade' => $qtd,
-                        'preco_unit' => $precoUnit,
+                        'produto_id'   => $prodId,
+                        'nome_produto' => $prodDb['nome'],
+                        'quantidade'   => $qtd,
+                        'preco_unit'   => $precoUnit,
                     ];
 
                     $stmtBaixa = $pdo->prepare('UPDATE produtos SET estoque = estoque - :qtd WHERE id = :id');
@@ -198,6 +199,12 @@ try {
                 } else {
                     $precoUnit = normalizarValor($item['price'] ?? 0);
                     $subtotal += $precoUnit * $qtd;
+                    $itensValidados[] = [
+                        'produto_id'   => null,
+                        'nome_produto' => trim((string) ($item['name'] ?? 'Produto NexaTech')),
+                        'quantidade'   => $qtd,
+                        'preco_unit'   => $precoUnit,
+                    ];
                 }
             }
 
@@ -205,30 +212,87 @@ try {
             $frete    = ($subtotal > 0 && $subtotal < 199) ? 10.0 : 0.0;
             $total    = max(0, round($subtotal - $desconto + $frete, 2));
 
+            // Identifica as colunas existentes na tabela pedidos
+            $colunasPedido = $pdo->query(
+                "SELECT column_name
+                 FROM information_schema.columns
+                 WHERE table_schema = 'public' AND table_name = 'pedidos'"
+            )->fetchAll(PDO::FETCH_COLUMN);
+
+            $dadosPedido = [
+                'cliente_id' => $clienteId,
+                'total'      => $total,
+                'status'     => 'Recebido',
+            ];
+
+            $opcionaisPedido = [
+                'endereco_entrega' => $endereco,
+                'cep_entrega'      => $cep,
+                'cep'              => $cep,
+                'subtotal'         => $subtotal,
+                'desconto'         => $desconto,
+                'frete'            => $frete,
+                'cupom'            => $cupom !== '' ? $cupom : null,
+            ];
+
+            foreach ($opcionaisPedido as $coluna => $valor) {
+                if (in_array($coluna, $colunasPedido, true)) {
+                    $dadosPedido[$coluna] = $valor;
+                }
+            }
+
+            $listaColunas = implode(', ', array_keys($dadosPedido));
+            $listaParams  = implode(', ', array_map(fn($c) => ':' . $c, array_keys($dadosPedido)));
+
             $stmtPedido = $pdo->prepare(
-                "INSERT INTO pedidos (cliente_id, total, status, cupom)
-                 VALUES (:cliente_id, :total, 'Recebido', :cupom)
+                "INSERT INTO pedidos ({$listaColunas})
+                 VALUES ({$listaParams})
                  RETURNING id"
             );
-            $stmtPedido->execute([
-                ':cliente_id' => $clienteId,
-                ':total'      => $total,
-                ':cupom'      => $cupom !== '' ? $cupom : null,
-            ]);
+
+            $paramsExec = [];
+            foreach ($dadosPedido as $coluna => $valor) {
+                $paramsExec[':' . $coluna] = $valor;
+            }
+            $stmtPedido->execute($paramsExec);
             $pedidoId = (int) $stmtPedido->fetchColumn();
 
+            // Grava os itens do pedido mapeando automaticamente as colunas de pedido_itens
             if (!empty($itensValidados)) {
-                $stmtItem = $pdo->prepare(
-                    "INSERT INTO pedido_itens (pedido_id, produto_id, quantidade, preco_unitario)
-                     VALUES (:pedido_id, :produto_id, :quantidade, :preco_unitario)"
-                );
+                $colunasItens = $pdo->query(
+                    "SELECT column_name
+                     FROM information_schema.columns
+                     WHERE table_schema = 'public' AND table_name = 'pedido_itens'"
+                )->fetchAll(PDO::FETCH_COLUMN);
+
                 foreach ($itensValidados as $iv) {
-                    $stmtItem->execute([
-                        ':pedido_id'      => $pedidoId,
-                        ':produto_id'     => $iv['produto_id'],
-                        ':quantidade'     => $iv['quantidade'],
-                        ':preco_unitario' => $iv['preco_unit'],
-                    ]);
+                    $dadosItem = [
+                        'pedido_id'  => $pedidoId,
+                        'produto_id' => $iv['produto_id'],
+                        'quantidade' => $iv['quantidade'],
+                    ];
+
+                    $opcionaisItem = [
+                        'nome_produto'   => $iv['nome_produto'],
+                        'preco_unitario' => $iv['preco_unit'],
+                        'preco'          => $iv['preco_unit'],
+                    ];
+
+                    foreach ($opcionaisItem as $coluna => $valor) {
+                        if (in_array($coluna, $colunasItens, true)) {
+                            $dadosItem[$coluna] = $valor;
+                        }
+                    }
+
+                    $colsItemStr = implode(', ', array_keys($dadosItem));
+                    $valsItemStr = implode(', ', array_map(fn($c) => ':' . $c, array_keys($dadosItem)));
+
+                    $stmtItem = $pdo->prepare("INSERT INTO pedido_itens ({$colsItemStr}) VALUES ({$valsItemStr})");
+                    $paramsItem = [];
+                    foreach ($dadosItem as $coluna => $valor) {
+                        $paramsItem[':' . $coluna] = $valor;
+                    }
+                    $stmtItem->execute($paramsItem);
                 }
             }
 

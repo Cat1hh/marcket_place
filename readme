@@ -1,0 +1,195 @@
+# NexaTech — E-commerce Marketplace de Periféricos & Setup
+
+Aplicação web full-stack de comércio eletrônico desenvolvida em **PHP 8.5**, **PostgreSQL**, **JavaScript Vanilla (ES6+)** e **CSS3**, executada em ambiente containerizado com **Docker**. O sistema cobre todo o ciclo de compra: vitrine dinâmica, catálogo com filtros avançados, página de detalhes com estoque em tempo real, sacola persistente com cupom de uso único, consulta automática de CEP, rastreamento de entrega em tempo real, painel administrativo e acessibilidade em Libras.
+
+---
+
+## Tecnologias Utilizadas
+
+* **Back-end:** PHP 8.5 (PDO com prepared statements, sessões nativas e `password_hash`)
+* **Banco de Dados:** PostgreSQL (transações ACID, bloqueio pessimista `FOR UPDATE` no estoque e `ON CONFLICT`)
+* **Front-end:** HTML5 semântico, CSS3 modular (Grid, Flexbox, variáveis CSS) e JavaScript nativo isolado por IIFE (`(() => { ... })()`)
+* **Infraestrutura:** Docker & Docker Compose
+* **Integrações Externas:**
+  * **ViaCEP** com fallback automático para **BrasilAPI** (preenchimento de endereço por CEP)
+  * **VLibras** (`vlibras.gov.br`) para tradução de conteúdo em Língua Brasileira de Sinais
+
+---
+
+## Estrutura do Projeto
+
+```text
+nexatech/
+├── database/
+│   └── init.sql                 # Schema PostgreSQL, índices, constraints e dados iniciais
+├── includes/
+│   ├── auth.php                 # Conexão PDO, controle de sessão e guards de permissão
+│   ├── header.php               # Cabeçalho global, navegação, busca e carregamento de CSS
+│   └── footer.php               # Rodapé global, badge da sacola, VLibras e scripts base
+├── public/
+│   ├── api/
+│   │   ├── produtos.php         # API REST para CRUD de produtos e consulta por ID/status
+│   │   └── pedidos.php          # API REST para pedidos, validação de cupom e baixa de estoque
+│   ├── css/
+│   │   ├── styles.css           # Tokens visuais, tipografia, vitrine e componentes globais
+│   │   ├── interactions.css     # Animações, estados de hover, toasts e microinterações
+│   │   ├── produto.css          # Layout da página de detalhes do produto
+│   │   ├── pesquisa.css         # Grade do catálogo e barra lateral de filtros
+│   │   ├── carrinho.css         # Layout da sacola, resumo escuro e módulo de cupom
+│   │   ├── auth.css             # Telas de login, cadastro, área do cliente e linha do tempo
+│   │   └── admin.css            # Dashboard administrativo
+│   ├── js/
+│   │   ├── script.js            # Menu mobile, favoritos, contador da sacola e busca ao vivo
+│   │   ├── pesquisa.js          # Filtros por categoria, tag, preço e ordenação no catálogo
+│   │   ├── produto.js           # Carregamento do produto, controle de estoque e relacionados
+│   │   ├── carrinho.js          # Gestão da sacola (localStorage), cupom NEXA10 e checkout
+│   │   ├── cep.js               # Máscara 00000-000 e consulta ViaCEP + BrasilAPI
+│   │   └── admin.js             # Gerenciamento de produtos, pedidos e clientes no admin
+│   ├── img/                     # Recursos visuais estáticos
+│   └── pages/
+│       ├── index.php            # Página inicial (vitrine)
+│       ├── pesquisa.php         # Catálogo completo e resultados de busca
+│       ├── produto.php          # Detalhes de um produto específico
+│       ├── carrinho.php         # Sacola de compras e finalização de pedido
+│       ├── login.php            # Autenticação de clientes e administradores
+│       ├── cadastro.php         # Registro de novos clientes
+│       ├── cliente.php          # Área do cliente e acompanhamento de entrega
+│       ├── admin.php            # Painel de gestão da loja
+│       └── logout.php           # Encerramento seguro da sessão
+└── docker-compose.yml
+```
+
+---
+
+## Detalhamento de Cada Página
+
+### 1. Vitrine Principal (`public/pages/index.php`)
+* **Barra de Anúncios & Cabeçalho:** Exibe condições promocionais, links de navegação, indicador em tempo real da quantidade de itens na sacola (`#cartCount`) e campos de busca sincronizados entre desktop (`#searchInput`) e mobile (`#mobileSearchInput`).
+* **Vitrine Dinâmica:** Renderiza os produtos com status `Ativo` diretamente do PostgreSQL, exibindo badge de destaque, categoria, avaliação, preço antigo, preço atual e botão para favoritar (`.favorite`).
+* **Filtro Instantâneo:** A busca no cabeçalho filtra os cards da vitrine em tempo real e atualiza o contador de itens visíveis.
+
+### 2. Catálogo & Pesquisa (`public/pages/pesquisa.php` + `pesquisa.js`)
+* **Consulta à API:** Carrega todos os produtos ativos via `GET ../api/produtos.php?status=Ativo`.
+* **Filtros Combinados:**
+  * Termo de busca vindo pela URL (`?q=termo`) ou categoria pré-selecionada (`?categoria=Teclados`).
+  * Checkboxes dinâmicos gerados a partir das categorias e tags de destaque existentes no banco.
+  * Faixa de preço mínimo (`#min-price`) e máximo (`#max-price`).
+* **Ordenação:** Permite ordenar por relevância, menor preço (`price-asc`), maior preço (`price-desc`) ou melhor avaliação (`rating`).
+* **Adição Rápida:** Cada card permite adicionar o item diretamente ao `localStorage` (`nexatech-cart`) com feedback visual via `#toast`.
+
+### 3. Detalhes do Produto (`public/pages/produto.php` + `produto.js`)
+* **Carregamento Dinâmico:** Lê o parâmetro `?id=` da URL e consulta `GET ../api/produtos.php?id={id}`. Caso o produto não exista ou esteja inativo, exibe um estado amigável de produto não encontrado.
+* **Informações Exibidas:** Breadcrumb dinâmico, categoria, identificador, imagem com fallback SVG automático por categoria caso não haja foto cadastrada, avaliação verificada, indicador real de unidades em estoque, preço antigo, preço atual e simulação de parcelamento em até **10x sem juros**.
+* **Ações de Compra:**
+  * Seletor de quantidade (`#quantity`) travado ao limite disponível em estoque.
+  * **Adicionar à sacola (`#cart-button`):** Insere a quantidade selecionada no `localStorage` e dispara notificação toast.
+  * **Comprar agora (`#buy-button`):** Adiciona o item à sacola e redireciona imediatamente para `carrinho.php`.
+  * Bloqueio automático dos botões caso o estoque esteja zerado.
+* **Produtos Relacionados:** Exibe até 4 itens ativos do catálogo na seção *Você também pode gostar*, priorizando produtos da mesma categoria.
+
+### 4. Sacola de Compras & Checkout (`public/pages/carrinho.php` + `carrinho.js` + `cep.js`)
+* **Gestão de Itens:** Agrupa produtos iguais da sacola (`nexatech-cart`) e permite incrementar (`+`), decrementar (`−`) ou remover cada item individualmente.
+* **Cálculo de Valores:**
+  * **Subtotal:** Soma automática dos itens selecionados.
+  * **Frete:** Grátis para compras a partir de **R$ 199,00**; fixado em **R$ 10,00** abaixo desse valor.
+  * **Cupom de Desconto (`NEXA10`):** Aplica **10% de desconto** sobre o subtotal. O código é validado em tempo real no servidor (`GET ../api/pedidos.php?verificar_cupom=NEXA10&email=...`) e bloqueado caso o e-mail já tenha utilizado o cupom anteriormente.
+* **Dados de Entrega & API de CEP:**
+  * Se o cliente estiver logado, preenche automaticamente `nome`, `email` (somente leitura), `cep` e `endereco` salvos no banco.
+  * Ao digitar os 8 dígitos do CEP, o módulo `cep.js` aplica a máscara `00000-000`, consulta o **ViaCEP** (com fallback para **BrasilAPI**) e preenche logradouro, bairro, cidade e UF, posicionando o cursor no final para o cliente informar apenas o número.
+* **Finalização:** Envia o pedido via `POST ../api/pedidos.php`, limpa a sacola local e redireciona clientes autenticados diretamente para `cliente.php`.
+
+### 5. Login (`public/pages/login.php`)
+* Formulário de autenticação por e-mail e senha com validação via `password_verify`.
+* Regenera o ID da sessão (`session_regenerate_id(true)`) após o login e redireciona conforme o perfil (`admin` para `admin.php`; `cliente` para `cliente.php`).
+
+### 6. Cadastro de Cliente (`public/pages/cadastro.php` + `cep.js`)
+* Valida campos obrigatórios, formato de e-mail, tamanho mínimo de senha (6 caracteres) e confirmação de senha.
+* Integra o módulo `cep.js` para preenchimento automático do endereço durante o cadastro.
+* Executa uma transação SQL que cria o acesso na tabela `usuarios` (`role = 'cliente'`) e sincroniza o perfil na tabela `clientes`, iniciando a sessão automaticamente ao concluir.
+
+### 7. Área do Cliente & Rastreamento (`public/pages/cliente.php`)
+* Rota protegida pela função `exigirLogin()`.
+* Exibe os dados cadastrais do cliente e a lista de pedidos vinculados ao seu cadastro (`#NT-1000 + id`).
+* **Acompanhamento de Entrega em Tempo Real (1 minuto):**
+  * Barra de progresso contínua e linha do tempo visual de 5 etapas que evolui automaticamente:
+    1. **0s:** `Recebido` — *Pedido recebido. Aguardando confirmação da loja...*
+    2. **10s:** `Confirmada` — *Entrega confirmada! Preparando pacote para envio.*
+    3. **25s:** `Despachada` — *Pedido despachado e em trânsito com a transportadora.*
+    4. **45s:** `Indo para entrega` — *Indo para entrega! O entregador está a caminho do seu endereço.*
+    5. **60s:** `Entregue` — *Pedido entregue com sucesso!*
+  * Salva o timestamp inicial em `localStorage` (`nexatech-track-{id}`) para preservar o andamento caso a página seja recarregada e atualiza o status definitivo para `Entregue` no PostgreSQL via `PUT ../api/pedidos.php`.
+
+### 8. Painel Administrativo (`public/pages/admin.php` + `admin.js`)
+* Área restrita a usuários com `role = 'admin'`.
+* **Gestão de Produtos:** Cadastro, edição, ativação/inativação, ajuste de estoque, preços e destaques via `public/api/produtos.php`.
+* **Gestão de Pedidos:** Visualização de todos os pedidos realizados, cupons aplicados e atualização manual de status (`Recebido`, `Em separação`, `Enviado`, `Entregue`).
+* **Gestão de Clientes:** Relatório consolidado de clientes cadastrados, quantidade de pedidos e total gasto por cliente.
+
+### 9. Acessibilidade Global (`includes/footer.php`)
+* Todas as páginas carregam o **Widget Oficial VLibras** (`https://vlibras.gov.br/app`), disponibilizando tradução automática de textos para Libras por meio de intérprete virtual 3D.
+
+---
+
+## Endpoints da API
+
+### `public/api/produtos.php`
+| Método | Parâmetros / Body | Descrição |
+| :--- | :--- | :--- |
+| `GET` | `?status=Ativo` ou `?id={id}` | Lista produtos filtrados por status ou retorna os detalhes de um produto específico. |
+| `POST` | JSON com dados do produto | Cadastra um novo produto no catálogo. |
+| `PUT` | JSON com `id` e campos atualizados | Atualiza preço, estoque, status ou informações de um produto. |
+| `DELETE` | `?id={id}` | Remove um produto do catálogo. |
+
+### `public/api/pedidos.php`
+| Método | Parâmetros / Body | Descrição |
+| :--- | :--- | :--- |
+| `GET` | `?verificar_cupom=NEXA10&email=...` | Verifica se o cupom é válido e se ainda não foi utilizado pelo e-mail informado. |
+| `GET` | *(sem parâmetros)* | Retorna a listagem completa de pedidos e o resumo financeiro de clientes para o painel admin. |
+| `POST` | JSON `{ cliente, itens, cupom }` | Valida estoque (`FOR UPDATE`), verifica uso único do cupom, abate unidades do estoque, cria/atualiza cliente e registra `pedidos` e `pedido_itens` em transação única. |
+| `PUT` | JSON `{ id, status }` | Atualiza o status de entrega de um pedido existente. |
+
+---
+
+## Modelagem do Banco de Dados (PostgreSQL)
+
+* **`usuarios`:** Credenciais de acesso (`id`, `nome`, `email`, `senha_hash`, `role`).
+* **`clientes`:** Dados de entrega e histórico (`id`, `nome`, `email`, `endereco`, `cep`).
+* **`produtos`:** Catálogo da loja (`id`, `nome`, `categoria`, `preco`, `preco_antigo`, `estoque`, `avaliacao`, `destaque`, `imagem`, `descricao`, `status`).
+* **`pedidos`:** Cabeçalho das compras (`id`, `cliente_id`, `endereco_entrega`, `cep_entrega`, `subtotal`, `desconto`, `frete`, `total`, `status`, `cupom`, `criado_em`).
+* **`pedido_itens`:** Itens vinculados a cada pedido (`id`, `pedido_id`, `produto_id`, `nome_produto`, `quantidade`, `preco_unitario`).
+
+---
+
+## Regras de Negócio Implementadas
+
+1. **Cupom de Uso Único (`NEXA10`):** Concede **10% de desconto** sobre o subtotal, limitado a **1 utilização por e-mail** (validado tanto na aplicação do cupom quanto na gravação do pedido no PostgreSQL).
+2. **Política de Frete:** Frete grátis para pedidos com subtotal igual ou superior a **R$ 199,00**; taxa fixa de **R$ 10,00** para valores inferiores.
+3. **Integridade de Estoque:** O checkout consulta o preço real no banco (impedindo adulteração via front-end), trava o registro do produto durante a transação e bloqueia compras acima da quantidade disponível.
+4. **Isolamento de Scripts:** Todos os módulos JavaScript são encapsulados em IIFEs (`(() => { ... })()`), evitando colisões de variáveis globais entre scripts compartilhados e scripts específicos de cada tela.
+
+---
+
+## Como Executar o Projeto
+
+### Pré-requisitos
+* **Docker** e **Docker Compose** instalados.
+
+### Passo a passo
+
+1. **Suba os containers da aplicação e do banco de dados:**
+   ```bash
+   docker compose up -d --build
+   ```
+
+2. **Garanta a coluna `cupom` na tabela `pedidos` (caso utilize um volume PostgreSQL já existente):**
+   ```bash
+   docker exec -i nexatech_postgres psql -U nexatech_user -d nexatech -c "
+   ALTER TABLE pedidos
+   ADD COLUMN IF NOT EXISTS cupom VARCHAR(40) DEFAULT NULL;"
+   ```
+
+3. **Acesse a aplicação no navegador:**
+   * **Loja (Vitrine):** `http://localhost:8080/pages/index.php`
+   * **Catálogo:** `http://localhost:8080/pages/pesquisa.php`
+   * **Login / Cadastro:** `http://localhost:8080/pages/login.php`
+   * **Painel Admin:** `http://localhost:8080/pages/admin.php` *(requer conta com `role = 'admin'`)*

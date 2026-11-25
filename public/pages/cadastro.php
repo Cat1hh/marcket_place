@@ -11,12 +11,12 @@ $erro = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nome     = trim($_POST['nome'] ?? '');
     $email    = trim($_POST['email'] ?? '');
-    $endereco = trim($_POST['endereco'] ?? '');
     $cep      = trim($_POST['cep'] ?? '');
+    $endereco = trim($_POST['endereco'] ?? '');
     $senha    = $_POST['senha'] ?? '';
     $confirma = $_POST['confirma_senha'] ?? '';
 
-    if ($nome === '' || $email === '' || $endereco === '' || $cep === '' || $senha === '') {
+    if ($nome === '' || $email === '' || $cep === '' || $endereco === '' || $senha === '') {
         $erro = 'Preencha todos os campos obrigatórios.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $erro = 'Informe um endereço de e-mail válido.';
@@ -86,6 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $tituloPagina = 'Criar conta | NexaTech';
 $cssExtras = ['auth.css'];
+$jsExtras = ['cep.js'];
 require_once __DIR__ . '/../../includes/header.php';
 ?>
 
@@ -126,12 +127,12 @@ require_once __DIR__ . '/../../includes/header.php';
 
           <div class="auth-row">
             <div class="auth-field">
-              <label for="endereco">Endereço</label>
-              <input type="text" id="endereco" name="endereco" value="<?= htmlspecialchars($_POST['endereco'] ?? '', ENT_QUOTES, 'UTF-8') ?>" placeholder="Rua, número e bairro" required>
+              <label for="cep">CEP</label>
+              <input type="text" id="cep" name="cep" maxlength="9" inputmode="numeric" value="<?= htmlspecialchars($_POST['cep'] ?? '', ENT_QUOTES, 'UTF-8') ?>" placeholder="00000-000" required>
             </div>
             <div class="auth-field">
-              <label for="cep">CEP</label>
-              <input type="text" id="cep" name="cep" value="<?= htmlspecialchars($_POST['cep'] ?? '', ENT_QUOTES, 'UTF-8') ?>" placeholder="00000-000" required>
+              <label for="endereco">Endereço e número</label>
+              <input type="text" id="endereco" name="endereco" value="<?= htmlspecialchars($_POST['endereco'] ?? '', ENT_QUOTES, 'UTF-8') ?>" placeholder="Rua, número e bairro" required>
             </div>
           </div>
 

@@ -7,12 +7,24 @@ $linkAdminFooter = ($usuarioFooter && ($usuarioFooter['role'] ?? '') === 'admin'
   <footer>
     <b>nexa<strong>tech</strong></b>
     <span>Periféricos para todos os seus momentos.</span>
-    <a href="<?= $linkAdminFooter ?>">Área do administrador</a>
     <span>© <?= date('Y') ?> NexaTech</span>
   </footer>
 
+  <!-- Widget Oficial VLibras (Tradução em Libras) -->
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+      <div class="vw-plugin-top-wrapper"></div>
+    </div>
+  </div>
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
   <script>
-    // Mantém o contador da sacola no cabeçalho atualizado em todas as páginas
+    if (window.VLibras) {
+      new window.VLibras.Widget('https://vlibras.gov.br/app');
+    }
+  </script>
+
+  <script>
     (() => {
       const badge = document.getElementById('cartCount');
       if (!badge) return;
